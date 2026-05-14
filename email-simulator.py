@@ -1,5 +1,6 @@
 import datetime
 
+
 class Email:
     def __init__(self, sender, receiver, subject, body):
         self.sender = sender
@@ -26,7 +27,12 @@ class Email:
     def __str__(self):
         status = 'Read' if self.read else 'Unread'
 
-        return f"[{status}] From: {self.sender.name} | Subject: {self.subject} | Time: {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+        return (
+            f"[{status}] "
+            f"From: {self.sender.name} | "
+            f"Subject: {self.subject} | "
+            f"Time: {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+        )
 
 
 class Inbox:
@@ -71,6 +77,7 @@ class Inbox:
             return
 
         del self.emails[actual_index]
+
         print('Email deleted.\n')
 
 
@@ -80,7 +87,12 @@ class User:
         self.inbox = Inbox()
 
     def send_email(self, receiver, subject, body):
-        email = Email(sender=self, receiver=receiver, subject=subject, body=body)
+        email = Email(
+            sender=self,
+            receiver=receiver,
+            subject=subject,
+            body=body
+        )
 
         receiver.inbox.receive_email(email)
 
@@ -101,6 +113,11 @@ def main():
     tory = User("Tory")
     ramy = User("Ramy")
 
+    users = {
+        "Tory": tory,
+        "Ramy": ramy
+    }
+
     # Emails automáticos
     tory.send_email(
         ramy,
@@ -114,31 +131,81 @@ def main():
         "Hi Tory, hope you are fine."
     )
 
-    # Usuário escreve email com input
-    print("=== Send a New Email ===")
-
-    sender_name = input("Sender (Tory/Ramy): ")
-    receiver_name = input("Receiver (Tory/Ramy): ")
-    subject = input("Subject: ")
-    body = input("Body: ")
-
-    users = {
-        "Tory": tory,
-        "Ramy": ramy
-    }
-
-    if sender_name in users and receiver_name in users:
-        sender = users[sender_name]
-        receiver = users[receiver_name]
-
-        sender.send_email(receiver, subject, body)
-
-    else:
-        print("Invalid users.\n")
-
-    # Ver inbox
+    # Primeiro mostra as inbox
+    print("\n=== Inboxes ===")
     tory.check_inbox()
     ramy.check_inbox()
+
+    # Pergunta se quer enviar email
+    send_choice = input("\nDo you want to send a new email? (yes/no): ")
+
+    if send_choice.lower() == "yes":
+
+        sender_name = input("Sender (Tory/Ramy): ")
+        receiver_name = input("Receiver (Tory/Ramy): ")
+        subject = input("Subject: ")
+        body = input("Body: ")
+
+        if sender_name in users and receiver_name in users:
+
+            sender = users[sender_name]
+            receiver = users[receiver_name]
+
+            sender.send_email(receiver, subject, body)
+
+        else:
+            print("Invalid users.\n")
+
+    # Ler email
+    read_choice = input("\nDo you want to read an email? (yes/no): ")
+
+    if read_choice.lower() == "yes":
+
+        user_name = input("Which inbox? (Tory/Ramy): ")
+
+        if user_name in users:
+
+            user = users[user_name]
+
+            user.check_inbox()
+
+            try:
+                email_number = int(input("Enter email number to read: "))
+
+                user.read_email(email_number)
+
+            except ValueError:
+                print("Please enter a valid number.\n")
+
+        else:
+            print("Invalid user.\n")
+
+    # Deletar email
+    delete_choice = input("\nDo you want to delete an email? (yes/no): ")
+
+    if delete_choice.lower() == "yes":
+
+        user_name = input("Which inbox? (Tory/Ramy): ")
+
+        if user_name in users:
+
+            user = users[user_name]
+
+            user.check_inbox()
+
+            try:
+                email_number = int(input("Enter email number to delete: "))
+
+                user.delete_email(email_number)
+
+                print("\nUpdated Inbox:")
+                user.check_inbox()
+
+            except ValueError:
+                print("Please enter a valid number.\n")
+
+        else:
+            print("Invalid user.\n")
 
 
 if __name__ == '__main__':
